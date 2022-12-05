@@ -42,6 +42,7 @@
    (APSRQ_REGNUM    104)	; Q bit pseudo register
    (APSRGE_REGNUM   105)	; GE bits pseudo register
    (VPR_REGNUM      106)	; Vector Predication Register - MVE register.
+   (RA_AUTH_CODE    107)	; Pseudo register to save PAC.
   ]
 )
 ;; 3rd operand to select_dominance_cc_mode
@@ -11518,7 +11519,7 @@
      arm_expand_prologue ();
    else
      thumb1_expand_prologue ();
-  DONE;
+   DONE;
   "
 )
 
@@ -12889,6 +12890,36 @@
   [(set_attr "type" "block")
    (set_attr "length" "8")]
 )
+
+(define_insn "pac_nop"
+  [(set (reg:SI IP_REGNUM)
+	(unspec:SI [(reg:SI SP_REGNUM) (reg:SI LR_REGNUM)]
+                   UNSPEC_PAC_NOP))]
+  "arm_arch7 && arm_arch_cmse"
+  "pac\t%|ip, %|lr, %|sp"
+  [(set_attr "length" "4")])
+
+(define_insn "pacbti_nop"
+  [(set (reg:SI IP_REGNUM)
+	(unspec:SI [(reg:SI SP_REGNUM) (reg:SI LR_REGNUM)]
+                   UNSPEC_PACBTI_NOP))]
+  "arm_arch7 && arm_arch_cmse"
+  "pacbti\t%|ip, %|lr, %|sp"
+  [(set_attr "length" "4")])
+
+(define_insn "aut_nop"
+  [(unspec:SI [(reg:SI IP_REGNUM) (reg:SI SP_REGNUM) (reg:SI LR_REGNUM)]
+              UNSPEC_AUT_NOP)]
+  "arm_arch7 && arm_arch_cmse"
+  "aut\t%|ip, %|lr, %|sp"
+  [(set_attr "length" "4")])
+
+(define_insn "bti_nop"
+  [(unspec_volatile [(const_int 0)] UNSPEC_BTI_NOP)]
+  "arm_arch7 && arm_arch_cmse"
+  "bti"
+  [(set_attr "length" "4")
+   (set_attr "type" "mov_reg")])
 
 ;; Vector bits common to IWMMXT, Neon and MVE
 (include "vec-common.md")

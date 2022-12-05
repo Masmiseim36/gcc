@@ -331,6 +331,12 @@ emission of floating point pcs attributes.  */
 						isa_bit_mve_float) \
 			       && !TARGET_GENERAL_REGS_ONLY)
 
+/* Non-zero if this target supports Armv8.1-M Mainline pointer-signing
+   extension.  */
+#define TARGET_HAVE_PACBTI (arm_arch8_1m_main \
+			    && bitmap_bit_p (arm_active_target.isa, \
+					     isa_bit_pacbti))
+
 /* MVE have few common instructions as VFP, like VLDM alias VPOP, VLDR, VSTM
    alia VPUSH, VSTR and VMOV, VMSR and VMRS.  In the same manner it updates few
    registers such as FPCAR, FPCCR, FPDSCR, FPSCR, MVFR0, MVFR1 and MVFR2.  All
@@ -806,7 +812,8 @@ extern const int arm_arch_cde_coproc_bits[];
 	s16-s31	      S	VFP variable (aka d8-d15).
 	vfpcc		Not a real register.  Represents the VFP condition
 			code flags.
-	vpr		Used to represent MVE VPR predication.  */
+	vpr		Used to represent MVE VPR predication.
+	ra_auth_code	Pseudo register to save PAC.  */
 
 /* The stack backtrace structure is as follows:
   fp points to here:  |  save code pointer  |      [fp]
@@ -847,7 +854,7 @@ extern const int arm_arch_cde_coproc_bits[];
   1,1,1,1,1,1,1,1,		\
   1,1,1,1,			\
   /* Specials.  */		\
-  1,1,1,1,1,1,1			\
+  1,1,1,1,1,1,1,1		\
 }
 
 /* 1 for registers not available across function calls.
@@ -877,7 +884,7 @@ extern const int arm_arch_cde_coproc_bits[];
   1,1,1,1,1,1,1,1,		\
   1,1,1,1,			\
   /* Specials.  */		\
-  1,1,1,1,1,1,1			\
+  1,1,1,1,1,1,1,1		\
 }
 
 #ifndef SUBTARGET_CONDITIONAL_REGISTER_USAGE
@@ -1053,10 +1060,10 @@ extern const int arm_arch_cde_coproc_bits[];
    && (LAST_VFP_REGNUM - (REGNUM) >= 2 * (N) - 1))
 
 /* The number of hard registers is 16 ARM + 1 CC + 1 SFP + 1 AFP
-   + 1 APSRQ + 1 APSRGE + 1 VPR.  */
+   + 1 APSRQ + 1 APSRGE + 1 VPR + 1 Pseudo register to save PAC.  */
 /* Intel Wireless MMX Technology registers add 16 + 4 more.  */
 /* VFP (VFP3) adds 32 (64) + 1 VFPCC.  */
-#define FIRST_PSEUDO_REGISTER   107
+#define FIRST_PSEUDO_REGISTER   108
 
 #define DBX_REGISTER_NUMBER(REGNO) arm_dbx_register_number (REGNO)
 
@@ -1243,11 +1250,14 @@ extern int arm_regs_in_sequence[];
   CC_REGNUM, VFPCC_REGNUM,			\
   FRAME_POINTER_REGNUM, ARG_POINTER_REGNUM,	\
   SP_REGNUM, PC_REGNUM, APSRQ_REGNUM,		\
-  APSRGE_REGNUM, VPR_REGNUM			\
+  APSRGE_REGNUM, VPR_REGNUM, RA_AUTH_CODE	\
 }
 
 #define IS_VPR_REGNUM(REGNUM) \
   ((REGNUM) == VPR_REGNUM)
+
+#define IS_PAC_Pseudo_REGNUM(REGNUM) \
+  ((REGNUM) == RA_AUTH_CODE)
 
 /* Use different register alloc ordering for Thumb.  */
 #define ADJUST_REG_ALLOC_ORDER arm_order_regs_for_local_alloc ()
@@ -1287,6 +1297,7 @@ enum reg_class
   SFP_REG,
   AFP_REG,
   VPR_REG,
+  PAC_REG,
   GENERAL_AND_VPR_REGS,
   ALL_REGS,
   LIM_REG_CLASSES
@@ -1317,6 +1328,7 @@ enum reg_class
   "SFP_REG",		\
   "AFP_REG",		\
   "VPR_REG",		\
+  "PAC_REG",		\
   "GENERAL_AND_VPR_REGS", \
   "ALL_REGS"		\
 }
@@ -1346,6 +1358,7 @@ enum reg_class
   { 0x00000000, 0x00000000, 0x00000000, 0x00000040 }, /* SFP_REG */	\
   { 0x00000000, 0x00000000, 0x00000000, 0x00000080 }, /* AFP_REG */	\
   { 0x00000000, 0x00000000, 0x00000000, 0x00000400 }, /* VPR_REG.  */	\
+  { 0x00000000, 0x00000000, 0x00000000, 0x00000800 }, /* PAC_REG.  */	\
   { 0x00005FFF, 0x00000000, 0x00000000, 0x00000400 }, /* GENERAL_AND_VPR_REGS.  */ \
   { 0xFFFF7FFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x0000040F }  /* ALL_REGS.  */	\
 }
