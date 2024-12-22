@@ -31,9 +31,13 @@
 #endif
 
 /* Switch to the text or data segment.  */
-#define TEXT_SECTION_ASM_OP  	"\t.text"
-#define DATA_SECTION_ASM_OP  	"\t.data"
-#define BSS_SECTION_ASM_OP   	"\t.bss"
+#define TEXT_SECTION_ASM_OP arm_text_section
+#define DATA_SECTION_ASM_OP arm_data_section
+#undef READONLY_DATA_SECTION_ASM_OP
+#define READONLY_DATA_SECTION_ASM_OP arm_readonly_data_section
+#define BSS_SECTION_ASM_OP arm_bss_section
+#undef TARGET_ASM_NAMED_SECTION
+#define TARGET_ASM_NAMED_SECTION arm_asm_named_section
 
 /* Note: If USER_LABEL_PREFIX or LOCAL_LABEL_PREFIX are changed,
    make sure that this change is reflected in the function

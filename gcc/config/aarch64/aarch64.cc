@@ -18296,6 +18296,37 @@ aarch64_convert_sve_vector_bits (aarch64_sve_vector_bits_enum value)
     return (int) value / 64;
 }
 
+const char *aarch64_text_section = "\t" AARCH64_DEFAULT_TEXT_SECTION_NAME;
+const char *aarch64_data_section = "\t" AARCH64_DEFAULT_DATA_SECTION_NAME;
+const char *aarch64_readonly_data_section = "\t.section " AARCH64_DEFAULT_READONLY_DATA_SECTION_NAME;
+const char *aarch64_bss_section = "\t" AARCH64_DEFAULT_BSS_SECTION_NAME;
+
+void aarch64_asm_named_section (const char *name, unsigned int flags, tree t)
+{
+  char local[1024 * 16];
+  if (strstr(name, AARCH64_DEFAULT_TEXT_SECTION_NAME ".")==name)
+    {
+      sprintf(local, "%s%s", aarch64_text_string, name+sizeof(AARCH64_DEFAULT_TEXT_SECTION_NAME)-1);
+      name = local;
+    }
+  else if (strstr(name, AARCH64_DEFAULT_DATA_SECTION_NAME ".")==name)
+    {
+      sprintf(local, "%s%s", aarch64_data_string, name+sizeof(AARCH64_DEFAULT_DATA_SECTION_NAME)-1);
+      name = local;
+    }
+  else if (strstr(name, AARCH64_DEFAULT_BSS_SECTION_NAME ".")==name)
+    {
+      sprintf(local, "%s%s", aarch64_bss_string, name+sizeof(AARCH64_DEFAULT_BSS_SECTION_NAME)-1);
+      name = local;
+    }
+  else if (strstr(name, AARCH64_DEFAULT_READONLY_DATA_SECTION_NAME ".")==name)
+    {
+      sprintf(local, "%s%s", aarch64_readonly_data_string, name+sizeof(AARCH64_DEFAULT_READONLY_DATA_SECTION_NAME)-1);
+      name = local;
+    }
+  default_elf_asm_named_section(name, flags, t);
+}
+
 /* Implement TARGET_OPTION_OVERRIDE.  This is called once in the beginning
    and is used to parse the -m{cpu,tune,arch} strings and setup the initial
    tuning structs.  In particular it must set selected_tune and
@@ -18455,6 +18486,35 @@ aarch64_override_options (void)
      while processing functions with potential target attributes.  */
   target_option_default_node = target_option_current_node
     = build_target_option_node (&global_options, &global_options_set);
+
+  if (strcmp(aarch64_text_string, AARCH64_DEFAULT_TEXT_SECTION_NAME))
+    {
+      #define AARCH64_TEXT_SECTION_FORMAT "\t.section\t%s,\"ax\",%%progbits\n"
+      char *tmp = XNEWVEC (char, strlen (aarch64_text_string) + sizeof (AARCH64_TEXT_SECTION_FORMAT) + 1);
+      sprintf (tmp, AARCH64_TEXT_SECTION_FORMAT, aarch64_text_string);
+      aarch64_text_section = tmp;
+    }
+  if (strcmp(aarch64_data_string, AARCH64_DEFAULT_DATA_SECTION_NAME))
+    {
+      #define AARCH64_DATA_SECTION_FORMAT "\t.section\t%s,\"aw\",%%progbits\n"
+      char *tmp = XNEWVEC (char, strlen (aarch64_data_string) + sizeof (AARCH64_DATA_SECTION_FORMAT) + 1);
+      sprintf (tmp, AARCH64_DATA_SECTION_FORMAT, aarch64_data_string);
+      aarch64_data_section = tmp;
+    }
+  if (strcmp(aarch64_readonly_data_string, AARCH64_DEFAULT_READONLY_DATA_SECTION_NAME))
+    {
+      #define AARCH64_READONLY_DATA_SECTION_FORMAT "\t.section\t%s,\"a\",%%progbits\n"
+      char *tmp = XNEWVEC (char, strlen (aarch64_readonly_data_string) + sizeof (AARCH64_READONLY_DATA_SECTION_FORMAT) + 1);
+      sprintf (tmp, AARCH64_READONLY_DATA_SECTION_FORMAT, aarch64_readonly_data_string);
+      aarch64_readonly_data_section = tmp;
+    }
+  if (strcmp(aarch64_bss_string, AARCH64_DEFAULT_BSS_SECTION_NAME))
+    {
+      #define AARCH64_BSS_SECTION_FORMAT "\t.section\t%s,\"aw\",%%nobits\n"
+      char *tmp = XNEWVEC (char, strlen (aarch64_bss_string) + sizeof (AARCH64_BSS_SECTION_FORMAT) + 1);
+      sprintf (tmp, AARCH64_BSS_SECTION_FORMAT, aarch64_bss_string);
+      aarch64_bss_section = tmp;
+    }
 }
 
 /* Implement targetm.override_options_after_change.  */

@@ -382,7 +382,7 @@ case ${host} in
   *-*-solaris2*)
   enable_execute_stack=enable-execute-stack-mprotect.c
   ;;
-i[34567]86-*-mingw* | x86_64-*-mingw*)
+i[34567]86-*-mingw* | x86_64-*-mingw* | aarch64-*-mingw*)
   enable_execute_stack=config/i386/enable-execute-stack-mingw32.c
   ;;
 i[34567]86-*-cygwin* | x86_64-*-cygwin*)
@@ -887,7 +887,7 @@ i[34567]86-*-mingw*)
 	fi
 	tmake_file="${tmake_file} ${tmake_eh_file} ${tmake_dlldir_file} i386/t-slibgcc-cygming i386/t-cygming i386/t-mingw32 t-crtfm i386/t-chkstk t-dfprules"
 	;;
-x86_64-*-mingw*)
+x86_64-*-mingw* | aarch64-*-mingw*)
 	case ${target_thread_file} in
 	  win32)
 	    tmake_file="$tmake_file i386/t-gthr-win32"

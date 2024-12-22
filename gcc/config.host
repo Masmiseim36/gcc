@@ -243,7 +243,7 @@ case ${host} in
     host_extra_gcc_objs="${host_extra_gcc_objs} driver-mingw32.o"
     host_lto_plugin_soname=liblto_plugin.dll
     ;;
-  x86_64-*-mingw*)
+  x86_64-*-mingw* | aarch64-*-mingw*)
     use_long_long_for_widest_fast_int=yes
     host_xm_file=i386/xm-mingw32.h
     host_xmake_file="${host_xmake_file} i386/x-mingw32"
@@ -256,7 +256,7 @@ case ${host} in
     out_host_hook_obj="${out_host_hook_obj} host-aarch64-darwin.o"
     host_xmake_file="${host_xmake_file} aarch64/x-darwin"
     ;;
-  i[34567]86-*-darwin* | x86_64-*-darwin*)
+  i[34567]86-*-darwin* | x86_64-*-darwin* | aarch64-*-darwin*)
     out_host_hook_obj="${out_host_hook_obj} host-i386-darwin.o"
     host_xmake_file="${host_xmake_file} i386/x-darwin"
     ;;

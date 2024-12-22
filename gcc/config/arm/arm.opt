@@ -286,6 +286,22 @@ munaligned-access
 Target Var(unaligned_access) Init(2) Save
 Enable unaligned word and halfword accesses to packed data.
 
+mtext=
+Target RejectNegative Joined Var(arm_text_string) Init(ARM_DEFAULT_TEXT_SECTION_NAME)
+-mtext=SECTION Put functions in SECTION
+
+mdata=
+Target RejectNegative Joined Var(arm_data_string) Init(ARM_DEFAULT_DATA_SECTION_NAME)
+-mdata=SECTION Put data in SECTION
+
+mrodata=
+Target RejectNegative Joined Var(arm_readonly_data_string) Init(ARM_DEFAULT_READONLY_DATA_SECTION_NAME)
+-mrodata=SECTION Put read-only data in SECTION
+
+mbss=
+Target RejectNegative Joined Var(arm_bss_string) Init(ARM_DEFAULT_BSS_SECTION_NAME)
+-mbss=SECTION Put zeroed data in SECTION
+
 mneon-for-64bits
 Target WarnRemoved
 This option is deprecated and has no effect.

@@ -1929,6 +1929,17 @@ enum arm_auto_incmodes
   if (TARGET_THUMB2)			\
     thumb2_asm_output_opcode (STREAM);
 
+#define ARM_DEFAULT_TEXT_SECTION_NAME  ".text"
+#define ARM_DEFAULT_DATA_SECTION_NAME  ".data"
+#define ARM_DEFAULT_READONLY_DATA_SECTION_NAME  ".rodata"
+#define ARM_DEFAULT_BSS_SECTION_NAME ".bss"
+
+extern const char *arm_text_section;
+extern const char *arm_data_section;
+extern const char *arm_readonly_data_section;
+extern const char *arm_bss_section;
+void arm_asm_named_section (const char *name, unsigned int flags, tree t);
+
 /* The EABI specifies that constructors should go in .init_array.
    Other targets use .ctors for compatibility.  */
 #ifndef ARM_EABI_CTORS_SECTION_OP

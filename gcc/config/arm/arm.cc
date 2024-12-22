@@ -2447,6 +2447,11 @@ arm_constant_limit (bool size_p)
   return size_p ? 1 : current_tune->constant_limit;
 }
 
+const char *arm_text_section = "\t" ARM_DEFAULT_TEXT_SECTION_NAME;
+const char *arm_data_section = "\t" ARM_DEFAULT_DATA_SECTION_NAME;
+const char *arm_readonly_data_section = "\t.section " ARM_DEFAULT_READONLY_DATA_SECTION_NAME;
+const char *arm_bss_section = "\t" ARM_DEFAULT_BSS_SECTION_NAME;
+
 /* Emit an insn that's a simple single-set.  Both the operands must be known
    to be valid.  */
 inline static rtx_insn *
@@ -3684,6 +3689,35 @@ arm_option_override (void)
       flag_reorder_blocks = 1;
     }
 
+  if (strcmp(arm_text_string, ARM_DEFAULT_TEXT_SECTION_NAME))
+    {
+      #define ARM_TEXT_SECTION_FORMAT "\t.section\t%s,\"ax\",%%progbits\n"
+      char *tmp = XNEWVEC (char, strlen (arm_text_string) + sizeof (ARM_TEXT_SECTION_FORMAT) + 1);
+      sprintf (tmp, ARM_TEXT_SECTION_FORMAT, arm_text_string);
+      arm_text_section = tmp;
+    }
+  if (strcmp(arm_data_string, ARM_DEFAULT_DATA_SECTION_NAME))
+    {
+      #define ARM_DATA_SECTION_FORMAT "\t.section\t%s,\"aw\",%%progbits\n"
+      char *tmp = XNEWVEC (char, strlen (arm_data_string) + sizeof (ARM_DATA_SECTION_FORMAT) + 1);
+      sprintf (tmp, ARM_DATA_SECTION_FORMAT, arm_data_string);
+      arm_data_section = tmp;
+    }
+  if (strcmp(arm_readonly_data_string, ARM_DEFAULT_READONLY_DATA_SECTION_NAME))
+    {
+      #define ARM_READONLY_DATA_SECTION_FORMAT "\t.section\t%s,\"a\",%%progbits\n"
+      char *tmp = XNEWVEC (char, strlen (arm_readonly_data_string) + sizeof (ARM_READONLY_DATA_SECTION_FORMAT) + 1);
+      sprintf (tmp, ARM_READONLY_DATA_SECTION_FORMAT, arm_readonly_data_string);
+      arm_readonly_data_section = tmp;
+    }
+  if (strcmp(arm_bss_string, ARM_DEFAULT_BSS_SECTION_NAME))
+    {
+      #define ARM_BSS_SECTION_FORMAT "\t.section\t%s,\"aw\",%%nobits\n"
+      char *tmp = XNEWVEC (char, strlen (arm_bss_string) + sizeof (ARM_BSS_SECTION_FORMAT) + 1);
+      sprintf (tmp, ARM_BSS_SECTION_FORMAT, arm_bss_string);
+      arm_bss_section = tmp;
+    }
+
   if (flag_pic)
     /* Hoisting PIC address calculations more aggressively provides a small,
        but measurable, size reduction for PIC code.  Therefore, we decrease
@@ -4003,6 +4037,32 @@ arm_fdpic_local_funcdesc_p (rtx fnx)
   DECL_VISIBILITY (fn) = vis;
 
   return ret;
+}
+
+void arm_asm_named_section (const char *name, unsigned int flags, tree t)
+{
+  char local[1024 * 16];
+  if (strstr(name, ARM_DEFAULT_TEXT_SECTION_NAME ".")==name)
+    {
+      sprintf(local, "%s%s", arm_text_string, name+sizeof(ARM_DEFAULT_TEXT_SECTION_NAME)-1);
+      name = local;
+    }
+  else if (strstr(name, ARM_DEFAULT_DATA_SECTION_NAME ".")==name)
+    {
+      sprintf(local, "%s%s", arm_data_string, name+sizeof(ARM_DEFAULT_DATA_SECTION_NAME)-1);
+      name = local;
+    }
+  else if (strstr(name, ARM_DEFAULT_BSS_SECTION_NAME ".")==name)
+    {
+      sprintf(local, "%s%s", arm_bss_string, name+sizeof(ARM_DEFAULT_BSS_SECTION_NAME)-1);
+      name = local;
+    }
+  else if (strstr(name, ARM_DEFAULT_READONLY_DATA_SECTION_NAME ".")==name)
+    {
+      sprintf(local, "%s%s", arm_readonly_data_string, name+sizeof(ARM_DEFAULT_READONLY_DATA_SECTION_NAME)-1);
+      name = local;
+    }
+  default_elf_asm_named_section(name, flags, t);
 }
 
 static void
