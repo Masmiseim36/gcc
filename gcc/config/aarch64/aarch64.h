@@ -1469,7 +1469,7 @@ extern enum aarch64_code_model aarch64_cmodel;
 
 /* Extra specs when building a native AArch64-hosted compiler.
    Option rewriting rules based on host system.  */
-#if defined(__aarch64__)
+#if defined(__aarch64__) && !defined(__APPLE__) && !defined(__MINGW32__)
 extern const char *host_detect_local_cpu (int argc, const char **argv);
 #define HAVE_LOCAL_CPU_DETECT
 # define EXTRA_SPEC_FUNCTIONS                                           \
