@@ -25,9 +25,22 @@
 #define ASM_OUTPUT_LABELREF(FILE, NAME) \
   aarch64_asm_output_labelref (FILE, NAME)
 
-#define TEXT_SECTION_ASM_OP	"\t.text"
-#define DATA_SECTION_ASM_OP	"\t.data"
-#define BSS_SECTION_ASM_OP	"\t.bss"
+#define TEXT_SECTION_ASM_OP aarch64_text_section
+#define DATA_SECTION_ASM_OP aarch64_data_section
+#undef READONLY_DATA_SECTION_ASM_OP
+#define READONLY_DATA_SECTION_ASM_OP aarch64_readonly_data_section
+#define BSS_SECTION_ASM_OP aarch64_bss_section
+#undef TARGET_ASM_NAMED_SECTION
+#define TARGET_ASM_NAMED_SECTION aarch64_asm_named_section
+#define AARCH64_DEFAULT_TEXT_SECTION_NAME  ".text"
+#define AARCH64_DEFAULT_DATA_SECTION_NAME  ".data"
+#define AARCH64_DEFAULT_READONLY_DATA_SECTION_NAME  ".rodata"
+#define AARCH64_DEFAULT_BSS_SECTION_NAME ".bss"
+extern const char *aarch64_text_section;
+extern const char *aarch64_data_section;
+extern const char *aarch64_readonly_data_section;
+extern const char *aarch64_bss_section;
+void aarch64_asm_named_section (const char *name, unsigned int flags, tree t);
 
 #define CTORS_SECTION_ASM_OP "\t.section\t.init_array,\"aw\",%init_array"
 #define DTORS_SECTION_ASM_OP "\t.section\t.fini_array,\"aw\",%fini_array"
